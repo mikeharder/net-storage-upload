@@ -47,14 +47,14 @@ namespace Files.Shares
             var fileClient = directoryClient.GetFileClient("test");
             await fileClient.CreateAsync(_stream.Length);
 
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1000));
-            var cancellationToken = cts.Token;
 
             while (true)
             {
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
                 _stream.Seek(0, SeekOrigin.Begin);
 
-                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken: cancellationToken);
+                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken: cts.Token);
 
                 _uploadsCompleted++;
             }
