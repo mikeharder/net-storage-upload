@@ -54,7 +54,7 @@ namespace Files.Shares
             {
                 _stream.Seek(0, SeekOrigin.Begin);
 
-                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken);
+                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken: cancellationToken);
 
                 _uploadsCompleted++;
             }
