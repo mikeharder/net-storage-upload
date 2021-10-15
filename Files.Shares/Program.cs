@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Storage.Files.Shares;
+using Azure.Test.Perf;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -32,7 +33,9 @@ namespace Files.Shares
             statusThread.Start();
 
             var connectionString = Environment.GetEnvironmentVariable("FILES_CONNECTION_STRING");
-            var stream = new MemoryStream(new byte[_size]);
+
+            // var stream = new MemoryStream(new byte[_size]);
+            var stream = RandomStream.Create(_size);
 
             var shareClient = new ShareClient(connectionString, "test");
             await shareClient.CreateIfNotExistsAsync();
