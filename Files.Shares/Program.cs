@@ -50,11 +50,10 @@ namespace Files.Shares
 
             while (true)
             {
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-
                 _stream.Seek(0, SeekOrigin.Begin);
 
-                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken: CancellationToken.None);
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1000));
+                await fileClient.UploadAsync(_stream, cancellationToken: cts.Token);
 
                 _uploadsCompleted++;
             }
