@@ -32,12 +32,15 @@ namespace Files.Shares
             statusThread.Start();
 
             var connectionString = Environment.GetEnvironmentVariable("FILES_CONNECTION_STRING");
+            var stream = new MemoryStream(new byte[_size]);
 
             var shareClient = new ShareClient(connectionString, "test");
-            var directoryClient = shareClient.GetDirectoryClient("test");
-            var fileClient = directoryClient.GetFileClient("test");
+            await shareClient.CreateIfNotExistsAsync();
 
-            var stream = new MemoryStream(new byte[_size]);
+            var directoryClient = shareClient.GetDirectoryClient("test");
+            await directoryClient.CreateIfNotExistsAsync();
+
+            var fileClient = directoryClient.GetFileClient("test");
             await fileClient.CreateAsync(stream.Length);
 
             while (true)
