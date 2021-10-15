@@ -1,7 +1,4 @@
-﻿using Azure;
-using Azure.Storage.Files.Shares;
-using Azure.Storage.Files.Shares.Models;
-using Azure.Test.Perf;
+﻿using Azure.Storage.Files.Shares;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -14,9 +11,6 @@ namespace Files.Shares
     {
         private const int _size = 1024 * 1024 * 1024;
         private const int BYTES_PER_MEGABYTE = 1024 * 1024;
-
-        // private readonly Stream _stream = new MemoryStream(new byte[_size]);
-        private static readonly Stream _stream = RandomStream.Create(_size);
 
         private static int _uploadsCompleted;
 
@@ -45,15 +39,15 @@ namespace Files.Shares
             await directoryClient.CreateIfNotExistsAsync();
 
             var fileClient = directoryClient.GetFileClient("test");
-            await fileClient.CreateAsync(_stream.Length);
+            await fileClient.CreateAsync(_size);
 
-
+            var stream = new MemoryStream(new byte[_size]);
             while (true)
             {
-                _stream.Seek(0, SeekOrigin.Begin);
+                stream.Seek(0, SeekOrigin.Begin);
 
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1000));
-                await fileClient.UploadAsync(_stream, cancellationToken: cts.Token);
+                await fileClient.UploadAsync(stream, cancellationToken: cts.Token);
 
                 _uploadsCompleted++;
             }
