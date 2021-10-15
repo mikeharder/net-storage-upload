@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
 using Azure.Test.Perf;
 using System;
 using System.Diagnostics;
@@ -13,6 +14,9 @@ namespace Files.Shares
     {
         private const int _size = 1024 * 1024 * 1024;
         private const int BYTES_PER_MEGABYTE = 1024 * 1024;
+
+        // private readonly Stream _stream = new MemoryStream(new byte[_size]);
+        private static readonly Stream _stream = RandomStream.Create(_size);
 
         private static int _uploadsCompleted;
 
@@ -34,9 +38,6 @@ namespace Files.Shares
 
             var connectionString = Environment.GetEnvironmentVariable("FILES_CONNECTION_STRING");
 
-            // var stream = new MemoryStream(new byte[_size]);
-            var stream = RandomStream.Create(_size);
-
             var shareClient = new ShareClient(connectionString, "test");
             await shareClient.CreateIfNotExistsAsync();
 
@@ -44,12 +45,17 @@ namespace Files.Shares
             await directoryClient.CreateIfNotExistsAsync();
 
             var fileClient = directoryClient.GetFileClient("test");
-            await fileClient.CreateAsync(stream.Length);
+            await fileClient.CreateAsync(_stream.Length);
+
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1000));
+            var cancellationToken = cts.Token;
 
             while (true)
             {
-                stream.Seek(0, SeekOrigin.Begin);
-                await fileClient.UploadAsync(stream);
+                _stream.Seek(0, SeekOrigin.Begin);
+
+                ShareFileUploadInfo fileUploadInfo = await fileClient.UploadAsync(_stream, cancellationToken);
+
                 _uploadsCompleted++;
             }
         }
